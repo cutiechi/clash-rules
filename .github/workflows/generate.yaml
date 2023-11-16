@@ -11,15 +11,31 @@ jobs:
     steps:
       - name: Download txts
         run: |
-          wget -O telegram.txt https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.list
+          export BASE_URL="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash"
+          wget -O blizzard.txt "$BASE_URL/Blizzard/Blizzard.yaml"
+          wget -O disney.txt "$BASE_URL/Disney/Disney.yaml"
+          wget -O github.txt "$BASE_URL/GitHub/GitHub.yaml"
+          wget -O netflix.txt "$BASE_URL/Netflix/Netflix_Classical.yaml"
+          wget -O spotify.txt "$BASE_URL/Spotify/Spotify.yaml"
+          wget -O telegram.txt "$BASE_URL/Telegram/Telegram.list"
 
       - name: Generate yamls
         run: |
+          function generate () {
+            echo 'payload:' >"./yamls/$1-domain.yaml"
+            grep '^DOMAIN-' "$1.txt" | awk -F ',' '{ print "  - " $2 }' >>"./yamls/$1-domain.yaml"
+            echo 'payload:' >"./yamls/$1-ip-cidr.yaml"
+            grep '^IP-CIDR' "$1.txt" | awk -F ',' '{ print "  - " $2 }' >>"./yamls/$1-ip-cidr.yaml"
+          }
+
           mkdir ./yamls
-          echo 'payload:' >./yamls/telegram-domain.yaml
-          grep '^DOMAIN-' telegram.txt | awk -F ',' '{ print "  - " $2 }' >>./yamls/telegram-domain.yaml
-          echo 'payload:' >./yamls/telegram-ip-cidr.yaml
-          grep '^IP-CIDR' telegram.txt | awk -F ',' '{ print "  - " $2 }' >>./yamls/telegram-ip-cidr.yaml
+
+          generate blizzard
+          generate disney
+          generate github
+          generate netflix
+          generate spotify
+          generate telegram
 
       - name: Set release tag
         run: |
