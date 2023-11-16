@@ -12,30 +12,59 @@ jobs:
       - name: Download txts
         run: |
           export BASE_URL="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash"
-          wget -O blizzard.txt "$BASE_URL/Blizzard/Blizzard.yaml"
-          wget -O disney.txt "$BASE_URL/Disney/Disney.yaml"
-          wget -O github.txt "$BASE_URL/GitHub/GitHub.yaml"
-          wget -O netflix.txt "$BASE_URL/Netflix/Netflix_Classical.yaml"
-          wget -O spotify.txt "$BASE_URL/Spotify/Spotify.yaml"
+          wget -O blizzard.txt "$BASE_URL/Blizzard/Blizzard.list"
+          wget -O disney.txt "$BASE_URL/Disney/Disney.list"
+          wget -O facebook.txt "$BASE_URL/Facebook/Facebook.list"
+          wget -O github.txt "$BASE_URL/GitHub/GitHub.list"
+          wget -O google.txt "$BASE_URL/Google/Google.list"
+          wget -O hbo.txt "$BASE_URL/HBO/HBO.list"
+          wget -O instagram.txt "$BASE_URL/Instagram/Instagram.list"
+          wget -O microsoft.txt "$BASE_URL/Microsoft/Microsoft.list"
+          wget -O netflix.txt "$BASE_URL/Netflix/Netflix.list"
+          wget -O nintendo.txt "$BASE_URL/Nintendo/Nintendo.list"
+          wget -O prime-video.txt "$BASE_URL/PrimeVideo/PrimeVideo.list"
+          wget -O spotify.txt "$BASE_URL/Spotify/Spotify.list"
+          wget -O steam.txt "$BASE_URL/Steam/Steam.list"
+          wget -O steam-cn.txt "$BASE_URL/SteamCN/SteamCN.list"
           wget -O telegram.txt "$BASE_URL/Telegram/Telegram.list"
+          wget -O twitter.txt "$BASE_URL/Twitter/Twitter.list"
+          wget -O ubisoft.txt "$BASE_URL/Ubisoft/Ubisoft.list"
+          wget -O xbox.txt "$BASE_URL/Xbox/Xbox.list"
+          wget -O youtube.txt "$BASE_URL/YouTube/YouTube.list"
 
       - name: Generate yamls
         run: |
-          function generate () {
-            echo 'payload:' >"./yamls/$1-domain.yaml"
-            grep '^DOMAIN-' "$1.txt" | awk -F ',' '{ print "  - " $2 }' >>"./yamls/$1-domain.yaml"
-            echo 'payload:' >"./yamls/$1-ip-cidr.yaml"
-            grep '^IP-CIDR' "$1.txt" | awk -F ',' '{ print "  - " $2 }' >>"./yamls/$1-ip-cidr.yaml"
+          function generate() {
+            for it in "$@"; do
+              echo 'payload:' >"./yamls/$it-domain.yaml"
+              awk -F ',' '/^DOMAIN/{ print "  - '\''+." $2 "'\''" }' "$it.txt" >>"./yamls/$it-domain.yaml"
+              echo 'payload:' >"./yamls/$it-ip-cidr.yaml"
+              awk -F, '/^IP-CIDR/{ print "  - '\''" $2 "'\''" }' "$it.txt" >>"./yamls/$it-ip-cidr.yaml"
+            done
           }
-
+          
           mkdir ./yamls
-
-          generate blizzard
-          generate disney
-          generate github
-          generate netflix
-          generate spotify
-          generate telegram
+          
+          generate blizzard \
+            disney \
+            facebook \
+            github \
+            google \
+            hbo \
+            instagram \
+            microsoft \
+            netflix \
+            nintendo \
+            prime-video \
+            spotify \
+            steam \
+            steam-cn \
+            telegram \
+            twitter \
+            ubisoft \
+            xbox \
+            youtube
+        
 
       - name: Set release tag
         run: |
