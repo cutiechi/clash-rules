@@ -16,8 +16,10 @@ jobs:
       - name: Generate yamls
         run: |
           mkdir ./yamls
-          echo 'payload:' >telegram-domain.yaml
+          echo 'payload:' >./yamls/telegram-domain.yaml
           grep '^DOMAIN-' telegram.txt | awk -F ',' '{ print "  - " $2 }' >>./yamls/telegram-domain.yaml
+          echo 'payload:' >./yamls/telegram-ip-cidr.yaml
+          grep '^IP-CIDR' telegram.txt | awk -F ',' '{ print "  - " $2 }' >>./yamls/telegram-ip-cidr.yaml
 
       - name: Set release tag
         run: |
