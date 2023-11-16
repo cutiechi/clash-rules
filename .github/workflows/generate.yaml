@@ -1,0 +1,32 @@
+name: Generate
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download txts
+        run: |
+          wget -O telegram.txt https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.list
+
+      - name: Generate yamls
+        run: |
+          echo 'payload:' >telegram-domain.yaml
+          grep '^DOMAIN-' telegram.txt | awk -F ',' '{ print "  - " $2 }' >>telegram-domain.yaml          
+
+      - name: Set release tag
+        run: |
+          TZ="Asia/Shanghai" echo "RELEASE_TAG=$(date "+%Y-%m-%d %H:%M:%S")" >>"$GITHUB_ENV"
+  
+      - name: Release and upload yamls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.RELEASE_TAG }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: '*.yaml'
