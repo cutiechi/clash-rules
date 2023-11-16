@@ -20,7 +20,7 @@ jobs:
 
       - name: Set release tag
         run: |
-          TZ="Asia/Shanghai" echo 'RELEASE_TAG="$(date "+%Y-%m-%d")"' >>"$GITHUB_ENV"
+          TZ="Asia/Shanghai" echo "RELEASE_TAG=\"$(date "+%Y-%m-%d %H:%M:%S")\"" >>"$GITHUB_ENV"
   
       - name: Release and upload yamls
         env:
