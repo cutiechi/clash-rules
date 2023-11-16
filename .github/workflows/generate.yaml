@@ -15,8 +15,9 @@ jobs:
 
       - name: Generate yamls
         run: |
+          mkdir ./yamls
           echo 'payload:' >telegram-domain.yaml
-          grep '^DOMAIN-' telegram.txt | awk -F ',' '{ print "  - " $2 }' >>telegram-domain.yaml          
+          grep '^DOMAIN-' telegram.txt | awk -F ',' '{ print "  - " $2 }' >>./yamls/telegram-domain.yaml
 
       - name: Set release tag
         run: |
@@ -30,6 +31,18 @@ jobs:
           name: ${{ env.RELEASE_TAG }}
           tag_name: ${{ env.RELEASE_TAG }}
           files: '*.yaml'
+
+      - name: Git push yamls to release branch
+        run: |
+          cd yamls || exit 1
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b release
+          git add .
+          git commit -m "${{ env.RELEASE_NAME }}"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f origin release
 
 permissions:
   contents: write
